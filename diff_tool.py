@@ -23,6 +23,7 @@ from typing import Union, Iterator
 def deduce_component(diff_string, componentlist):
     current_count = 0
     max_count = 0
+    issue_component = ''
     for i in componentlist:
       current_count = diff_string.upper().count(i.upper())
       #print(current_count, max_count)
@@ -30,9 +31,23 @@ def deduce_component(diff_string, componentlist):
         issue_component = i
         max_count = current_count
       print(i, " counts: ", current_count)
-    print("\nDeduced issue component: ", issue_component)
+    if (issue_component == ''):
+      print("\nUnable to deduce any issue in the list")
+    else:
+      print("\nDeduced issue component: ", issue_component)
 
 def construct_last_n_string(n, diff_string):
+    if (n == 0):
+      print("no lines to diff")
+      return ''
+    if (diff_string == ''):
+      print("no string to diff")
+      return ''
+    nlines = diff_string.count('\n')
+    if (n > nlines):
+      print("nlines : ", nlines)
+      print("out of bound. try running with lower n parameter less than nlines. eg: -n 1" )
+      return ''
     # get the last few lines in the diff string
     targetted_diff = ''
     for i in range (n, 0, -1):

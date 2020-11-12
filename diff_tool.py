@@ -36,7 +36,6 @@ def deduce_component(diff_string, componentlist):
     issue_component = ''
     for i in componentlist:
       current_count = diff_string.upper().count(i.upper())
-      #print(current_count, max_count)
       if (current_count > max_count):
         issue_component = i
         max_count = current_count
@@ -66,7 +65,6 @@ def construct_last_n_string(n, diff_string):
     # get the last few lines in the diff string
     targetted_diff = ''
     for i in range (n, 0, -1):
-      # print((diff_string.split('\n'))[-i])
       targetted_diff = targetted_diff + diff_string.split('\n')[-i] + '\n'
     return targetted_diff
 
@@ -80,28 +78,14 @@ def create_diff(old_file: Path, new_file: Path, output_file: Path=None, numlines
     if output_file:
         with open(output_file, "w") as f:
             f.write(difflib.HtmlDiff().make_file(
-                # file_1, file_2, old_file.name, new_file.name
                 file_1, file_2, old_file.name, new_file.name, True,5
                 )
             )
             f.close()
     else:
-        # POC references:
-        # sys.stdout.writelines(difflib.unified_diff(
-            # file_1, file_2, old_file.name, new_file.name)
-        # )
-        # sys.stdout.writelines(difflib.unified_diff(
-            # file_1, file_2, old_file.name, new_file.name, "","",3)
-        # )
-        # get the match, cutoff is 0-1 in probability score
-        # n is number of match
-        # matches = difflib.get_close_matches(diff_string, ['com','usb', 'pci', 'shell', 'mrc', 'i2c', 'spi'], n=1, cutoff=0.000001)
-        # print("matches", matches)
-
         diff_object = difflib.unified_diff(
              file_1, file_2, old_file.name, new_file.name, "","",3)
         diff_string = ''.join(diff_object)
-        # print(diff_string)
 
         # categories are defined here. Can be potentially changed to dictionary to point to owners per components.
         # yocto_components = ['tsn', 'audio']
@@ -111,9 +95,6 @@ def create_diff(old_file: Path, new_file: Path, output_file: Path=None, numlines
         print("Whole log diff report")
         print("---------------------------")
         deduce_component(diff_string, bios_components)
-
-        # POC code:
-        # print("The last 10 characters go as below :", diff_string[-10:])
 
         print("---------------------------")
         print("Targetted log diff report")

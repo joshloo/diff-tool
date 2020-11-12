@@ -21,6 +21,12 @@ from pathlib import Path
 from typing import Union, Iterator
 
 def deduce_component(diff_string, componentlist):
+    if (diff_string == ''):
+      print("\n nothing to diff")
+      return
+    if (componentlist == []):
+      print("\n no component to deduce")
+      return
     current_count = 0
     max_count = 0
     issue_component = ''

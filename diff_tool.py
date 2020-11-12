@@ -17,6 +17,7 @@ DESCRIPTION:
 import difflib
 import sys
 import argparse
+from urllib.request import urlopen
 
 from pathlib import Path
 from typing import Union, Iterator
@@ -95,6 +96,10 @@ def get_board_id(stringlist):
 def get_yocto_id(stringlist):
     print('todo')
 
+# This function gets file from URL, if the pass log will be in CI
+def get_file_from_url(url):
+    for line in urlopen(url):
+      print(line)
 
 # This is the original implementation of creating a diff output.
 # it will be either as an output filename, or in command prompt.
@@ -156,6 +161,11 @@ def create_diff(pass_file: Path, fail_file: Path, output_file: Path=None, numlin
           print(NO_BOARD_ID)
         else:
           print("Different Board ID, please use right component, rejecting HSD..")
+
+        # print("---------------------------")
+        # print("Get file from URL")
+        # print("---------------------------")
+        # get_file_from_url('http://www.sci.utah.edu/~macleod/docs/txt2html/sample.txt')
 
 def main():
     print("======================")

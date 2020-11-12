@@ -4,12 +4,13 @@ FILE:
 
 DESCRIPTION:
     script that shows the difference between two files.
-    
+
     https://florian-dahlitz.de/blog/create-your-own-diff-tool-using-python
 
-    this code includes modification from original source to compare delta between debug
-    log files to narrow down potential boot issues
-    as such, it is recommended to run the tool with commend sequence below.
+    This code includes modification from original source to compare delta between debug
+    log files to narrow down potential boot issues.
+
+    As such, it is recommended to run the tool with commend sequence below.
     diff_tool pass.log fail.log
 """
 
@@ -20,6 +21,9 @@ import argparse
 from pathlib import Path
 from typing import Union, Iterator
 
+# This function predicts which component might go wrong after the diff.
+# it takes in the whole diff string, and run through the component list
+# and see which one match the most to come into a conclusion.
 def deduce_component(diff_string, componentlist):
     if (diff_string == ''):
       print("\n nothing to diff")
@@ -42,6 +46,11 @@ def deduce_component(diff_string, componentlist):
     else:
       print("\nDeduced issue component: ", issue_component)
 
+# This function constructs the last n lines of diff string to create a more
+# refined string. This is to eliminate the noise level of diff. Having a
+# big n parameter will cause a lot to be dumped out and interpreted,
+# which sometimes is not a good thing if we want to know which element hang
+# at last part of fail log.
 def construct_last_n_string(n, diff_string):
     if (n == 0):
       print("no lines to diff")
@@ -61,6 +70,9 @@ def construct_last_n_string(n, diff_string):
       targetted_diff = targetted_diff + diff_string.split('\n')[-i] + '\n'
     return targetted_diff
 
+# This is the original implementation of creating a diff output.
+# it will be either as an output filename, or in command prompt.
+# for this POC, it will put more focus on command prompt.
 def create_diff(old_file: Path, new_file: Path, output_file: Path=None, numlines = 5) -> None:
     file_1 = open(old_file).readlines()
     file_2 = open(new_file).readlines()

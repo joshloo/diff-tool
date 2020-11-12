@@ -21,6 +21,10 @@ import argparse
 from pathlib import Path
 from typing import Union, Iterator
 
+#defines
+NO_BIOS_ID  = 'no BIOS id found'
+NO_BOARD_ID = 'no board id found'
+
 # This function predicts which component might go wrong after the diff.
 # it takes in the whole diff string, and run through the component list
 # and see which one match the most to come into a conclusion.
@@ -72,20 +76,20 @@ def construct_last_n_string(n, diff_string):
 # This function gets the BIOS ID given a file read string list
 def get_bios_id(stringlist):
     if (stringlist == []):
-      return 'no BIOS id found'
+      return NO_BIOS_ID
     for line in stringlist:
       if "BIOS ID:" in line:
         return line.strip()
-    return 'no BIOS id found'
+    return NO_BIOS_ID
 
 # This function gets the board ID given a file read string list
 def get_board_id(stringlist):
     if (stringlist == []):
-      return 'no Board id found'
+      return NO_BOARD_ID
     for line in stringlist:
       if "BoardId is " in line:
         return line.strip()
-    return 'no board id found'
+    return NO_BOARD_ID
 
 # This function gets the Yocto ID given file read string list
 def get_yocto_id(stringlist):
@@ -133,10 +137,10 @@ def create_diff(pass_file: Path, fail_file: Path, output_file: Path=None, numlin
         print("pass case: ", get_bios_id(pass_file_list))
         print("fail case: ", get_bios_id(fail_file_list))
         if ((get_bios_id(pass_file_list) == get_bios_id(fail_file_list)) and
-            get_bios_id(pass_file_list) != 'no BIOS id found'):
+            get_bios_id(pass_file_list) != NO_BIOS_ID):
           print("Both BIOS ID identical")
-        elif (get_bios_id(pass_file_list) == 'no BIOS id found'):
-          print('no BIOS id found')
+        elif (get_bios_id(pass_file_list) == NO_BIOS_ID):
+          print(NO_BIOS_ID)
         else:
           print("Different BIOS ID, please use right component, rejecting HSD..")
 
@@ -146,10 +150,10 @@ def create_diff(pass_file: Path, fail_file: Path, output_file: Path=None, numlin
         print("pass case: ", get_board_id(pass_file_list))
         print("fail case: ", get_board_id(fail_file_list))
         if ((get_board_id(pass_file_list) == get_board_id(fail_file_list)) and
-            get_board_id(pass_file_list) != 'no board id found'):
+            get_board_id(pass_file_list) != NO_BOARD_ID):
           print("Both board ID identical")
-        elif (get_board_id(pass_file_list) == 'no board id found'):
-          print('no board id found')
+        elif (get_board_id(pass_file_list) == NO_BOARD_ID):
+          print(NO_BOARD_ID)
         else:
           print("Different Board ID, please use right component, rejecting HSD..")
 

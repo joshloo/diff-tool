@@ -68,23 +68,47 @@ def construct_last_n_string(n, diff_string):
       targetted_diff = targetted_diff + diff_string.split('\n')[-i] + '\n'
     return targetted_diff
 
+
+# This function gets the BIOS ID given a file read string list
+def get_bios_id(stringlist):
+    if (stringlist == []):
+      return 'no BIOS id found'
+    for line in stringlist:
+      if "BIOS ID:" in line:
+        return line.strip()
+    return 'no BIOS id found'
+
+# This function gets the board ID given a file read string list
+def get_board_id(stringlist):
+    if (stringlist == []):
+      return 'no Board id found'
+    for line in stringlist:
+      if "BoardId is " in line:
+        return line.strip()
+    return 'no board id found'
+
+# This function gets the Yocto ID given file read string list
+def get_yocto_id(stringlist):
+    print('todo')
+
+
 # This is the original implementation of creating a diff output.
 # it will be either as an output filename, or in command prompt.
 # for this POC, it will put more focus on command prompt.
-def create_diff(old_file: Path, new_file: Path, output_file: Path=None, numlines = 5) -> None:
-    file_1 = open(old_file).readlines()
-    file_2 = open(new_file).readlines()
+def create_diff(pass_file: Path, fail_file: Path, output_file: Path=None, numlines = 5) -> None:
+    pass_file_list = open(pass_file).readlines()
+    fail_file_list = open(fail_file).readlines()
 
     if output_file:
         with open(output_file, "w") as f:
             f.write(difflib.HtmlDiff().make_file(
-                file_1, file_2, old_file.name, new_file.name, True,5
+                pass_file_list, fail_file_list, pass_file.name, fail_file.name, True,5
                 )
             )
             f.close()
     else:
         diff_object = difflib.unified_diff(
-             file_1, file_2, old_file.name, new_file.name, "","",3)
+             pass_file_list, fail_file_list, pass_file.name, fail_file.name, "","",3)
         diff_string = ''.join(diff_object)
 
         # categories are defined here. Can be potentially changed to dictionary to point to owners per components.
@@ -92,39 +116,63 @@ def create_diff(old_file: Path, new_file: Path, output_file: Path=None, numlines
         bios_components = ['com','usb', 'pci', 'shell', 'mrc', 'i2c', 'spi', 'tpm', 'xhci']
         
         print("---------------------------")
-        print("Whole log diff report")
+        print("Whole log diff")
         print("---------------------------")
         deduce_component(diff_string, bios_components)
 
         print("---------------------------")
-        print("Targetted log diff report")
+        print("Targetted log diff")
         print("---------------------------")
         targetted_diff = construct_last_n_string(numlines, diff_string)
         print(targetted_diff)
         deduce_component(targetted_diff, bios_components)
 
+        print("---------------------------")
+        print("Compare BIOS ID")
+        print("---------------------------")
+        print("pass case: ", get_bios_id(pass_file_list))
+        print("fail case: ", get_bios_id(fail_file_list))
+        if ((get_bios_id(pass_file_list) == get_bios_id(fail_file_list)) and
+            get_bios_id(pass_file_list) != 'no BIOS id found'):
+          print("Both BIOS ID identical")
+        elif (get_bios_id(pass_file_list) == 'no BIOS id found'):
+          print('no BIOS id found')
+        else:
+          print("Different BIOS ID, please use right component, rejecting HSD..")
+
+        print("---------------------------")
+        print("Compare BOARD ID")
+        print("---------------------------")
+        print("pass case: ", get_board_id(pass_file_list))
+        print("fail case: ", get_board_id(fail_file_list))
+        if ((get_board_id(pass_file_list) == get_board_id(fail_file_list)) and
+            get_board_id(pass_file_list) != 'no board id found'):
+          print("Both board ID identical")
+        elif (get_board_id(pass_file_list) == 'no board id found'):
+          print('no board id found')
+        else:
+          print("Different Board ID, please use right component, rejecting HSD..")
+
 def main():
     print("======================")
-    print("Log analyzer diff tool")
+    print("Log analyzer")
     print("======================")
     parser = argparse.ArgumentParser()
-    parser.add_argument("old_file_version")
-    parser.add_argument("new_file_version")
+    parser.add_argument("pass_file_version")
+    parser.add_argument("fail_file_version")
     parser.add_argument("--html", help="specify html to write to")
     parser.add_argument("-n", "--numline",type=int, default=5, help="specify how many lines to diff", )
     args = parser.parse_args()
     
-    old_file = Path(args.old_file_version)
-    new_file = Path(args.new_file_version)
+    pass_file = Path(args.pass_file_version)
+    fail_file = Path(args.fail_file_version)
     numlines =  args.numline
 
     if args.html:
         output_file = Path(args.html)
     else:
         output_file = None
-    
-    create_diff(old_file, new_file, output_file, numlines)
-    
+    create_diff(pass_file, fail_file, output_file, numlines)
 
 if __name__ == "__main__":
     main()
